@@ -1,27 +1,23 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Net;
 using Microsoft.VisualBasic;
-using System.Collections.Generic;
 class Program
 {
     static bool Rodando = true;
     static string nomeConta;
     static string senha;
-    static List<string> nomes = new List<string>();
+    static string[] nomes = new string[5];
     static int Ncontagem = 0;
-    static List<string> senhas = new List<string>();
+    static string[] senhas = new string[5];
     static int Scontagem = 0;
     static void Main()
     {
         while(Rodando == true)
         {
-            Console.Clear();
             Console.WriteLine("===BEM VINDO===");
             System.Console.WriteLine("1 - Criar Conta");
             System.Console.WriteLine("2 - Logar na Conta");
-            System.Console.WriteLine("3 - Listar Usuarios");
-            System.Console.WriteLine("4 - Sair");
+            System.Console.WriteLine("3 - Sair");
 
             int resp = Convert.ToInt32(Console.ReadLine());
             if(resp == 1)
@@ -34,11 +30,7 @@ class Program
                 {
                 }
                 System.Console.WriteLine("Deu GREEN");
-            }else if(resp == 3)
-            {
-                Listar();
-            }
-            else if (resp == 4)
+            }else if (resp == 3)
             {
                 Rodando = false;
             }
@@ -70,21 +62,23 @@ class Program
         }
         static void CriarConta()
         {
-            System.Console.WriteLine("Nomeie sua Conta");
+            System.Console.WriteLine("nomeie sua Conta");
             nomeConta = Console.ReadLine();
-            nomes.Add(nomeConta);
+            nomes[Ncontagem] = nomeConta;
+            Ncontagem++;
 
             Load();
 
             System.Console.WriteLine("");
             System.Console.WriteLine(nomeConta);
-            System.Console.WriteLine("Qual sera sua senha?  ");
+            System.Console.WriteLine("Qual sera sua senha?:  ");
             senha = Console.ReadLine();
 
-            senhas.Add(senha);
+            senhas[Scontagem] = senha;
+            Scontagem++;
 
             string Nsenha;
-
+            
             System.Console.WriteLine("Digite novamente:  ");
             Nsenha = Console.ReadLine();
             while(senha != Nsenha)
@@ -94,47 +88,28 @@ class Program
             }
 
             System.Console.WriteLine("Conta Criada com sucesso!");
-            Thread.Sleep(2000);
         }
         static bool LogarConta()
         {
-           System.Console.WriteLine("Digite seu Usuario:  ");
-           nomeConta = Console.ReadLine();
-           int i = 0;
-           while(nomes[i] != nomeConta)
+            System.Console.WriteLine("Digite o nome da Sua Conta:");
+            string typedNomeConta = Console.ReadLine();
+            if(nomeConta != typedNomeConta)
             {
-                i++;
-                if(i == nomes.Count)
+                System.Console.WriteLine("Essa conta nao existe,tente Novamente");
+                return false;
+            }else
+            {
+                System.Console.WriteLine("Digite a senha");
+                string typedSenha = Console.ReadLine();
+                if(senha != typedSenha)
                 {
-                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
+                    System.Console.WriteLine("senha incorreta,tente novamente.");
                     return false;
                 }
+                System.Console.WriteLine("Conta logada com sucesso!");
+                return true;
             }
-            System.Console.WriteLine("Digite sua senha:");
-            senha = Console.ReadLine();
-            while(senhas[i] != senha)
-            {
-                System.Console.WriteLine("senha incorreta,tente Novamente");
-                senha = Console.ReadLine();
-            }
-            System.Console.WriteLine("Usuario Logado com sucesso!");
-            Thread.Sleep(2000);
-            return true;      
-        }
-        static void Listar()
-        {
-            int i = 0;
-            System.Console.WriteLine("id | Nome | senha");
-            while (i != nomes.Count)
-            {
-                if(nomes[i] == null)
-                {
-                    System.Console.WriteLine($"{i}: Vazio");
-                }else
-                System.Console.WriteLine($"{i}: {nomes[i]} | {senhas[i]}");
-                i++;
-            }
-            Console.ReadLine();
         }
     }
+    
 }

@@ -26,3 +26,4 @@ C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\obj\Debug\net9.0\refint\ConsoleA
 C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\obj\Debug\net9.0\ConsoleApp1.pdb
 C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\obj\Debug\net9.0\ConsoleApp1.genruntimeconfig.cache
 C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\obj\Debug\net9.0\ref\ConsoleApp1.dll
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\obj\Debug\net9.0\ConsoleApp1.sourcelink.json

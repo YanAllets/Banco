@@ -1,0 +1,14 @@
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\bin\Debug\net9.0\Proj2.exe
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\bin\Debug\net9.0\Proj2.deps.json
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\bin\Debug\net9.0\Proj2.runtimeconfig.json
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\bin\Debug\net9.0\Proj2.dll
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\bin\Debug\net9.0\Proj2.pdb
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.AssemblyInfoInputs.cache
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.AssemblyInfo.cs
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.csproj.CoreCompileInputs.cache
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.dll
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\refint\Proj2.dll
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.pdb
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\Proj2.genruntimeconfig.cache
+C:\Users\Yan\OneDrive\Documentos\Projetos\Proj2\obj\Debug\net9.0\ref\Proj2.dll
