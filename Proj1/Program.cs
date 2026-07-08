@@ -9,9 +9,7 @@ class Program
     static string nomeConta;
     static string senha;
     static List<string> nomes = new List<string>();
-    static int Ncontagem = 0;
     static List<string> senhas = new List<string>();
-    static int Scontagem = 0;
     static void Main()
     {
         while(Rodando == true)
@@ -127,10 +125,6 @@ class Program
             System.Console.WriteLine("id | Nome | senha");
             while (i != nomes.Count)
             {
-                if(nomes[i] == null)
-                {
-                    System.Console.WriteLine($"{i}: Vazio");
-                }else
                 System.Console.WriteLine($"{i}: {nomes[i]} | {senhas[i]}");
                 i++;
             }
