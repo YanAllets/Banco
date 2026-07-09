@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\Proj1\\ConsoleApp1.csproj": {}
+    "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\proj1\\ConsoleApp1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\Proj1\\ConsoleApp1.csproj": {
+    "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\proj1\\ConsoleApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\Proj1\\ConsoleApp1.csproj",
+        "projectUniqueName": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\proj1\\ConsoleApp1.csproj",
         "projectName": "ConsoleApp1",
-        "projectPath": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\Proj1\\ConsoleApp1.csproj",
+        "projectPath": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\proj1\\ConsoleApp1.csproj",
         "packagesPath": "C:\\Users\\Yan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\Proj1\\obj\\",
+        "outputPath": "C:\\Users\\Yan\\OneDrive\\Documentos\\Projetos\\proj1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Yan\\AppData\\Roaming\\NuGet\\NuGet.Config",
