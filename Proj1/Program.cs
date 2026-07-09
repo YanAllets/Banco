@@ -10,7 +10,7 @@ class Program
     static string nomeConta;
     static string senha;
     static List<Conta> contas = new List<Conta>();
-    static int Contador = 0;
+    static int IdAtualConta;
     static void Main()
     {
         while(Rodando == true)
@@ -22,28 +22,39 @@ class Program
             System.Console.WriteLine("3 - Listar Usuarios");
             System.Console.WriteLine("4 - Sair");
 
-            int resp = Convert.ToInt32(Console.ReadLine());
-            if(resp == 1)
+            string resp = Console.ReadLine();
+            if(resp == "1")
             {
             CriarConta();
             }
-            else if (resp == 2)
+            else if (resp == "2")
             {
                 while(LogarConta() == false)
                 {
                 }
-                System.Console.WriteLine("Deu GREEN");
-            }else if(resp == 3)
+
+                System.Console.WriteLine("==== MENU CONTA ====");
+                System.Console.WriteLine("1 - Saldo");
+                resp = Console.ReadLine();
+
+                if(resp == "1")
+                {
+                    System.Console.WriteLine($"Saldo:{contas[IdAtualConta].Saldo}");
+                    System.Console.WriteLine($"Conta Atual:{IdAtualConta}");
+                    Console.ReadLine();
+                }
+            }else if(resp == "3")
             {
                 Listar();
             }
-            else if (resp == 4)
+            else if (resp == "4")
             {
                 Rodando = false;
             }
-            else if(resp != 1 && resp != 2 && resp != 3)
+            else if(resp != "1" && resp != "2" && resp != "3" )
             {
-                System.Console.WriteLine("Resposta nao aceita, tente novamente");
+                System.Console.WriteLine("Resposta nao aceita, tente novamente - Enter para continuar...");
+                Console.ReadLine();
             }
         }
         static void Load()
@@ -69,8 +80,14 @@ class Program
         }
         static void CriarConta()
         {
+            Console.Clear();
             System.Console.WriteLine("Nomeie sua Conta");
+            System.Console.WriteLine("e - Para Sair");
             nomeConta = Console.ReadLine();
+            if (Quit(nomeConta))
+            {
+                return;
+            }
             Conta conta = new Conta();
 
             conta.Nome = nomeConta;
@@ -80,8 +97,12 @@ class Program
             System.Console.WriteLine("");
             System.Console.WriteLine(nomeConta);
             System.Console.WriteLine("Qual sera sua senha?  ");
+            System.Console.WriteLine("e - Para Sair");
             senha = Console.ReadLine();
-
+            if (Quit(senha))
+            {
+                return;
+            }
             conta.Senha = senha;
 
             string Nsenha;
@@ -100,10 +121,23 @@ class Program
         }
         static bool LogarConta()
         {
+            if(contas.Count == 0)
+            {
+                System.Console.WriteLine("Nao existem contas disponiveis,Enter - para continuar");
+                Rodando = false; 
+                return false;
+            }
+
+
            System.Console.WriteLine("Digite seu Usuario:  ");
+           System.Console.WriteLine("e - Para Sair");
            nomeConta = Console.ReadLine();
+           if (Quit(nomeConta))
+            {
+                return false;
+            }
            int i = 0;
-           while(contas[Contador].Nome != nomeConta)
+           while(contas[i].Nome != nomeConta)
             {
                 i++;
                 if(i == contas.Count)
@@ -112,9 +146,16 @@ class Program
                     return false;
                 }
             }
+            IdAtualConta = i;
             System.Console.WriteLine("Digite sua senha:");
+            System.Console.WriteLine("e - Para Sair");
             senha = Console.ReadLine();
-            while(contas[Contador].Senha != senha)
+
+            if (Quit(senha))
+            {
+                return false;
+            }
+            while(contas[i].Senha != senha)
             {
                 System.Console.WriteLine("senha incorreta,tente Novamente");
                 senha = Console.ReadLine();
@@ -125,12 +166,21 @@ class Program
         }
         static void Listar()
         {
-            while(Contador != contas.Count)
+            foreach(Conta conta in contas)
             {
-                System.Console.WriteLine($"nome: {contas[Contador].Nome} Senha:{contas[Contador].Senha}");
-                Contador++;
+                System.Console.WriteLine($"Nome:{conta.Nome}   |Senha: {conta.Senha}");
             }
+            System.Console.WriteLine("Enter - Para Sair");
             Console.ReadLine();
+        }
+        static bool Quit(string variavel)
+        {   
+            if(variavel == "e")
+            {
+                Rodando = false;
+                return true;
+            }
+            return false;
         }
     }
 }
@@ -138,4 +188,5 @@ class Conta
 {
     public string Nome;
     public string Senha;
+    public float Saldo;
 }
