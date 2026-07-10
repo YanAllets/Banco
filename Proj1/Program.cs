@@ -29,20 +29,11 @@ class Program
             }
             else if (resp == "2")
             {
-                while(LogarConta() == false)
+                while(Rodando && LogarConta() == false)
                 {
                 }
 
-                System.Console.WriteLine("==== MENU CONTA ====");
-                System.Console.WriteLine("1 - Saldo");
-                resp = Console.ReadLine();
-
-                if(resp == "1")
-                {
-                    System.Console.WriteLine($"Saldo:{contas[IdAtualConta].Saldo}");
-                    System.Console.WriteLine($"Conta Atual:{IdAtualConta}");
-                    Console.ReadLine();
-                }
+                MenuConta();
             }else if(resp == "3")
             {
                 Listar();
@@ -125,17 +116,14 @@ class Program
             {
                 System.Console.WriteLine("Nao existem contas disponiveis,Enter - para continuar");
                 Rodando = false; 
-                return false;
+                return true;
             }
 
 
            System.Console.WriteLine("Digite seu Usuario:  ");
            System.Console.WriteLine("e - Para Sair");
            nomeConta = Console.ReadLine();
-           if (Quit(nomeConta))
-            {
-                return false;
-            }
+           Quit(nomeConta);
            int i = 0;
            while(contas[i].Nome != nomeConta)
             {
@@ -168,7 +156,7 @@ class Program
         {
             foreach(Conta conta in contas)
             {
-                System.Console.WriteLine($"Nome:{conta.Nome}   |Senha: {conta.Senha}");
+                System.Console.WriteLine($"Nome:{conta.Nome}   |  Senha: {conta.Senha}  | Saldo: {conta.Saldo}");
             }
             System.Console.WriteLine("Enter - Para Sair");
             Console.ReadLine();
@@ -177,16 +165,100 @@ class Program
         {   
             if(variavel == "e")
             {
-                Rodando = false;
-                return true;
+                Environment.Exit(0);
             }
             return false;
         }
+        static int ProcurarConta(string nome)
+        {
+            int i = 0;
+            while(contas[i].Nome != nome)
+            {
+                i++;
+                if(i == contas.Count)
+                {
+                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
+                    nome = Console.ReadLine();
+                }
+            }
+            return i;
+        }
+        static void MenuConta()
+        {
+            System.Console.WriteLine("==== MENU CONTA ====");
+            System.Console.WriteLine("1 - Saldo");
+            System.Console.WriteLine("2 - Depositar");
+            System.Console.WriteLine("3 - Sacar");
+            System.Console.WriteLine("4 - Transferir");
+            string resp = Console.ReadLine();
+
+            if(resp == "1")
+            {
+                Saldo();
+            }
+            else if(resp == "2")
+            {
+                Deposito();
+            }else if(resp == "3")
+            {
+                Sacar();
+            }else if(resp == "4")
+            {
+                Transferir();
+            }
+        }
+        static void Saldo()
+        {
+            System.Console.WriteLine($"Saldo:{contas[IdAtualConta].Saldo}");
+            Console.ReadLine();
+        }
+        static void Deposito()
+        {      
+        System.Console.WriteLine("Digite o valor a Depositar: ");
+        float valor = Convert.ToInt32(Console.ReadLine());
+        contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo + valor;
+        System.Console.WriteLine($"Foram Depositados R${valor} -  Enter para continuar");
+        Console.ReadLine();
+        }
+        static void Sacar()
+        {
+            System.Console.WriteLine("Digite o valor a sacar: ");
+            float valor = Convert.ToInt32(Console.ReadLine());
+            while(valor > contas[IdAtualConta].Saldo)
+            {
+                System.Console.WriteLine($"Valor maior que o saldo da conta ({contas[IdAtualConta].Saldo}) Tente novamente");
+            }
+            contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
+            System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${contas[IdAtualConta].Saldo}");
+        }
+        static void Transferir()
+        {
+            System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
+            string ContaDestino = Console.ReadLine();
+            int i = 0;
+            while(contas[i].Nome != ContaDestino)
+            {
+                i++;
+                if(i == contas.Count)
+                {
+                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
+                }
+            }
+
+            Console.WriteLine("Digite o valor a trasnferir: ");
+            float valor = Convert.ToInt32(Console.ReadLine());
+            while(valor > contas[IdAtualConta].Saldo)
+            {
+                System.Console.WriteLine($"Valor maior que o saldo da conta (Saldo:{contas[IdAtualConta].Saldo}) Tente novamente");
+                valor = Convert.ToInt32(Console.ReadLine());
+            }
+
+            contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
+
+            contas[i].Saldo = contas[i].Saldo + valor;
+
+            System.Console.WriteLine($"Foram Transferidos R${valor} -  Enter para continuar");
+            Console.ReadLine();
+        }
     }
-}
-class Conta
-{
-    public string Nome;
-    public string Senha;
-    public float Saldo;
 }
