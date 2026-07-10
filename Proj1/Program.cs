@@ -29,11 +29,13 @@ class Program
             }
             else if (resp == "2")
             {
-                while(Rodando && LogarConta() == false)
+                if (LogarConta() == true)
                 {
+                    while(MenuConta() == true)
+                    {   
+                    }
                 }
 
-                MenuConta();
             }else if(resp == "3")
             {
                 Listar();
@@ -67,6 +69,8 @@ class Program
                     Thread.Sleep(250);
                 }
             }
+            Thread.Sleep(200);
+            Console.Clear();
 
         }
         static void CriarConta()
@@ -112,11 +116,14 @@ class Program
         }
         static bool LogarConta()
         {
+            Thread.Sleep(200);
+            Console.Clear();
+            
             if(contas.Count == 0)
             {
-                System.Console.WriteLine("Nao existem contas disponiveis,Enter - para continuar");
-                Rodando = false; 
-                return true;
+                System.Console.WriteLine("Nao existem contas disponiveis - Enter para Continuar"); 
+                Console.ReadLine();
+                return false;
             }
 
 
@@ -150,6 +157,7 @@ class Program
             }
             System.Console.WriteLine("Usuario Logado com sucesso!");
             Thread.Sleep(2000);
+            Console.Clear();
             return true;      
         }
         static void Listar()
@@ -183,29 +191,40 @@ class Program
             }
             return i;
         }
-        static void MenuConta()
+        static bool MenuConta()
         {
+            Thread.Sleep(200);
+            Console.Clear();
             System.Console.WriteLine("==== MENU CONTA ====");
             System.Console.WriteLine("1 - Saldo");
             System.Console.WriteLine("2 - Depositar");
             System.Console.WriteLine("3 - Sacar");
             System.Console.WriteLine("4 - Transferir");
+            System.Console.WriteLine("5 - Sair");
             string resp = Console.ReadLine();
 
             if(resp == "1")
             {
                 Saldo();
+                return true;
             }
             else if(resp == "2")
             {
                 Deposito();
+                return true;
             }else if(resp == "3")
             {
                 Sacar();
+                return true;
             }else if(resp == "4")
             {
                 Transferir();
+                return true;
+            }else if(resp == "5")
+            {
+                return false;
             }
+            return true;
         }
         static void Saldo()
         {
