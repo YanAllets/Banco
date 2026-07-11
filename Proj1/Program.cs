@@ -89,7 +89,6 @@ class Program
 
             Load();
 
-            System.Console.WriteLine("");
             System.Console.WriteLine(nomeConta);
             System.Console.WriteLine("Qual sera sua senha?  ");
             System.Console.WriteLine("e - Para Sair");
@@ -228,7 +227,9 @@ class Program
         }
         static void Saldo()
         {
+            Console.Clear();
             System.Console.WriteLine($"Saldo:{contas[IdAtualConta].Saldo}");
+            System.Console.WriteLine("Enter Para Continuar");
             Console.ReadLine();
         }
         static void Deposito()
@@ -249,6 +250,8 @@ class Program
             }
             contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${contas[IdAtualConta].Saldo}");
+            System.Console.WriteLine("Enter para Continuar");
+            Console.ReadLine();
         }
         static void Transferir()
         {
@@ -261,6 +264,9 @@ class Program
                 if(i == contas.Count)
                 {
                     System.Console.WriteLine("Usuario nao Existe,tente Novamente");
+                    System.Console.WriteLine("Enter para Continuar");
+                    Console.ReadLine();
+                    return;
                 }
             }
 
