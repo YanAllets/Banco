@@ -8,5 +8,5 @@ class Conta
 {
     public string Nome;
     public string Senha;
-    public float Saldo;
+    public decimal Saldo;
 }

@@ -7,8 +7,6 @@ using System.Net.Mail;
 class Program
 {
     static bool Rodando = true;
-    static string nomeConta;
-    static string senha;
     static List<Conta> contas = new List<Conta>();
     static int IdAtualConta;
     static void Main()
@@ -57,7 +55,7 @@ class Program
             int i = 0;
             int contador = 0;
 
-            while(contador < 2)
+            while(contador < 1)
             {
                 contador++;
                 i = 0;
@@ -78,8 +76,8 @@ class Program
             Console.Clear();
             System.Console.WriteLine("Nomeie sua Conta");
             System.Console.WriteLine("e - Para Sair");
-            nomeConta = Console.ReadLine();
-            if (Quit(nomeConta))
+            string nomeConta = Console.ReadLine();
+            if (QuitIf(nomeConta))
             {
                 return;
             }
@@ -92,8 +90,8 @@ class Program
             System.Console.WriteLine(nomeConta);
             System.Console.WriteLine("Qual sera sua senha?  ");
             System.Console.WriteLine("e - Para Sair");
-            senha = Console.ReadLine();
-            if (Quit(senha))
+            string senha = Console.ReadLine();
+            if (QuitIf(senha))
             {
                 return;
             }
@@ -128,24 +126,16 @@ class Program
 
            System.Console.WriteLine("Digite seu Usuario:  ");
            System.Console.WriteLine("e - Para Sair");
-           nomeConta = Console.ReadLine();
-           Quit(nomeConta);
-           int i = 0;
-           while(contas[i].Nome != nomeConta)
-            {
-                i++;
-                if(i == contas.Count)
-                {
-                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
-                    return false;
-                }
-            }
+           string nomeConta = Console.ReadLine();
+           QuitIf(nomeConta);
+           int i = ProcurarConta(nomeConta);
+
             IdAtualConta = i;
             System.Console.WriteLine("Digite sua senha:");
             System.Console.WriteLine("e - Para Sair");
-            senha = Console.ReadLine();
+            string senha = Console.ReadLine();
 
-            if (Quit(senha))
+            if (QuitIf(senha))
             {
                 return false;
             }
@@ -168,7 +158,7 @@ class Program
             System.Console.WriteLine("Enter - Para Sair");
             Console.ReadLine();
         }
-        static bool Quit(string variavel)
+        static bool QuitIf(string variavel)
         {   
             if(variavel == "e")
             {
@@ -184,8 +174,10 @@ class Program
                 i++;
                 if(i == contas.Count)
                 {
-                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
+                    System.Console.WriteLine("Conta nao encontrada tente Novamente:");
                     nome = Console.ReadLine();
+                    QuitIf(nome);
+                    i = 0;
                 }
             }
             return i;
@@ -235,7 +227,13 @@ class Program
         static void Deposito()
         {      
         System.Console.WriteLine("Digite o valor a Depositar: ");
-        float valor = Convert.ToInt32(Console.ReadLine());
+        string resp = Console.ReadLine();
+        decimal valor;
+        while(Verificar(resp, out valor) == false)
+            {
+                System.Console.WriteLine("tente novamente:");
+                resp = Console.ReadLine();
+            }
         contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo + valor;
         System.Console.WriteLine($"Foram Depositados R${valor} -  Enter para continuar");
         Console.ReadLine();
@@ -243,10 +241,26 @@ class Program
         static void Sacar()
         {
             System.Console.WriteLine("Digite o valor a sacar: ");
-            float valor = Convert.ToInt32(Console.ReadLine());
+            string resp = Console.ReadLine();
+            decimal valor;
+
+            while(Verificar(resp, out valor) == false)
+            {
+                System.Console.WriteLine("tente novamente:");
+                resp = Console.ReadLine();
+            }
+
             while(valor > contas[IdAtualConta].Saldo)
             {
                 System.Console.WriteLine($"Valor maior que o saldo da conta ({contas[IdAtualConta].Saldo}) Tente novamente");
+                resp = Console.ReadLine();
+
+                while(Verificar(resp, out valor) == false)
+                {
+                System.Console.WriteLine("tente novamente:");
+                resp = Console.ReadLine();
+                }
+                
             }
             contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${contas[IdAtualConta].Saldo}");
@@ -257,25 +271,27 @@ class Program
         {
             System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
             string ContaDestino = Console.ReadLine();
-            int i = 0;
-            while(contas[i].Nome != ContaDestino)
-            {
-                i++;
-                if(i == contas.Count)
-                {
-                    System.Console.WriteLine("Usuario nao Existe,tente Novamente");
-                    System.Console.WriteLine("Enter para Continuar");
-                    Console.ReadLine();
-                    return;
-                }
-            }
+            int i = ProcurarConta(ContaDestino);
 
             Console.WriteLine("Digite o valor a trasnferir: ");
-            float valor = Convert.ToInt32(Console.ReadLine());
+            string resp = Console.ReadLine();
+            decimal valor;
+            while(Verificar(resp, out valor) == false)
+            {
+                System.Console.WriteLine("tente novamente:");
+                resp = Console.ReadLine();
+            }
+
             while(valor > contas[IdAtualConta].Saldo)
             {
                 System.Console.WriteLine($"Valor maior que o saldo da conta (Saldo:{contas[IdAtualConta].Saldo}) Tente novamente");
-                valor = Convert.ToInt32(Console.ReadLine());
+                resp = Console.ReadLine();
+
+                while(Verificar(resp, out valor) == false)
+                {
+                System.Console.WriteLine("tente novamente:");
+                resp = Console.ReadLine();
+                }
             }
 
             contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
@@ -284,6 +300,18 @@ class Program
 
             System.Console.WriteLine($"Foram Transferidos R${valor} -  Enter para continuar");
             Console.ReadLine();
+        }
+        static bool Verificar(string resp, out decimal valor)
+        {
+                if(decimal.TryParse(resp,out valor))
+            {
+                return true;
+            }
+            else
+            {
+                System.Console.WriteLine("Valor Invalido");
+                return false;
+            }
         }
     }
 }
