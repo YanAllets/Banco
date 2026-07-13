@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Net;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
-using System.Net.Mail;
+using System.Text.Json;
+using System.IO;
 class Program
 {
     static bool Rodando = true;
@@ -109,6 +108,9 @@ class Program
 
             contas.Add(conta);
             System.Console.WriteLine("Conta Criada com sucesso!");
+            SalvarContas();
+            Console.WriteLine(Directory.GetCurrentDirectory());
+            Console.ReadLine();
             Thread.Sleep(2000);
         }
         static bool LogarConta()
@@ -260,7 +262,6 @@ class Program
                 System.Console.WriteLine("tente novamente:");
                 resp = Console.ReadLine();
                 }
-                
             }
             contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${contas[IdAtualConta].Saldo}");
@@ -270,6 +271,7 @@ class Program
         static void Transferir()
         {
             System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
+            System.Console.WriteLine("Enter ");
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
 
@@ -312,6 +314,12 @@ class Program
                 System.Console.WriteLine("Valor Invalido");
                 return false;
             }
+        }
+        static void SalvarContas()
+        {
+            string texto;
+            texto = JsonSerializer.Serialize(contas);
+            File.WriteAllText(@"C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\contas.json",texto);
         }
     }
 }
