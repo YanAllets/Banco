@@ -18,6 +18,7 @@ class Program
             System.Console.WriteLine("2 - Logar na Conta");
             System.Console.WriteLine("3 - Listar Usuarios");
             System.Console.WriteLine("4 - Sair");
+            AbrirContas();
 
             string resp = Console.ReadLine();
             if(resp == "1")
@@ -109,8 +110,6 @@ class Program
             contas.Add(conta);
             System.Console.WriteLine("Conta Criada com sucesso!");
             SalvarContas();
-            Console.WriteLine(Directory.GetCurrentDirectory());
-            Console.ReadLine();
             Thread.Sleep(2000);
         }
         static bool LogarConta()
@@ -319,7 +318,18 @@ class Program
         {
             string texto;
             texto = JsonSerializer.Serialize(contas);
-            File.WriteAllText(@"C:\Users\Yan\OneDrive\Documentos\Projetos\Proj1\contas.json",texto);
+            File.WriteAllText("contas.json",texto);
+        }
+        static void AbrirContas()
+        {
+            bool existe = File.Exists("contas.json");
+            string texto;
+            if (existe == true)
+            {
+                texto = File.ReadAllText("contas.json");
+                System.Console.WriteLine(texto);
+                contas = JsonSerializer.Deserialize<List<Conta>>(texto);
+            }
         }
     }
 }
