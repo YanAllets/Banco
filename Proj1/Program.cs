@@ -3,12 +3,20 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.IO;
+using MySqlConnector;
+
 class Program
 {
+    
     static bool Rodando = true;
     static List<Conta> contas = new List<Conta>();
     static int IdAtualConta;
+    string conexao = "...";
+
+    
+
     static void Main()
+    
     {
         while(Rodando == true)
         {
@@ -19,6 +27,7 @@ class Program
             System.Console.WriteLine("3 - Listar Usuarios");
             System.Console.WriteLine("4 - Sair");
             AbrirContas();
+            TestarConexao();
 
             string resp = Console.ReadLine();
             if(resp == "1")
@@ -327,9 +336,18 @@ class Program
             if (existe == true)
             {
                 texto = File.ReadAllText("contas.json");
-                System.Console.WriteLine(texto);
                 contas = JsonSerializer.Deserialize<List<Conta>>(texto);
             }
+        }
+        static void TestarConexao()
+        {
+            string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
+
+            using MySqlConnection conn = new MySqlConnection(conexao);
+
+            conn.Open();
+
+            Console.WriteLine("Conectado!");
         }
     }
 }
