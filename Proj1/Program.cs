@@ -11,13 +11,14 @@ class Program
     static bool Rodando = true;
     static List<Conta> contas = new List<Conta>();
     static int IdAtualConta;
-    string conexao = "...";
+    static string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
 
-    
+    static MySqlConnection conn = new MySqlConnection(conexao);
 
     static void Main()
     
     {
+        AbrirContas();
         while(Rodando == true)
         {
             Console.Clear();
@@ -26,8 +27,7 @@ class Program
             System.Console.WriteLine("2 - Logar na Conta");
             System.Console.WriteLine("3 - Listar Usuarios");
             System.Console.WriteLine("4 - Sair");
-            AbrirContas();
-            TestarConexao();
+            InserirContaTeste();
 
             string resp = Console.ReadLine();
             if(resp == "1")
@@ -339,15 +339,13 @@ class Program
                 contas = JsonSerializer.Deserialize<List<Conta>>(texto);
             }
         }
-        static void TestarConexao()
+        
+        static void InserirContaTeste()
         {
-            string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
-
-            using MySqlConnection conn = new MySqlConnection(conexao);
-
             conn.Open();
-
-            Console.WriteLine("Conectado!");
+            string sql = "INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('Yan','123',0)";
+            MySqlCommand comando = new MySqlCommand(sql, conn);
+            comando.ExecuteNonQuery();
         }
     }
 }
