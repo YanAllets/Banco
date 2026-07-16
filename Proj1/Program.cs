@@ -12,22 +12,21 @@ class Program
     static List<Conta> contas = new List<Conta>();
     static int IdAtualConta;
     static string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
-
     static MySqlConnection conn = new MySqlConnection(conexao);
 
     static void Main()
     
     {
-        AbrirContas();
+        conn.Open();
         while(Rodando == true)
         {
+            AbrirContas();
             Console.Clear();
             Console.WriteLine("===BEM VINDO===");
             System.Console.WriteLine("1 - Criar Conta");
             System.Console.WriteLine("2 - Logar na Conta");
             System.Console.WriteLine("3 - Listar Usuarios");
             System.Console.WriteLine("4 - Sair");
-            InserirContaTeste();
 
             string resp = Console.ReadLine();
             if(resp == "1")
@@ -95,7 +94,6 @@ class Program
             conta.Nome = nomeConta;
 
             Load();
-
             System.Console.WriteLine(nomeConta);
             System.Console.WriteLine("Qual sera sua senha?  ");
             System.Console.WriteLine("e - Para Sair");
@@ -118,7 +116,7 @@ class Program
 
             contas.Add(conta);
             System.Console.WriteLine("Conta Criada com sucesso!");
-            SalvarContas();
+            SqlExecute($"INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('{nomeConta}','{senha}','0')");
             Thread.Sleep(2000);
         }
         static bool LogarConta()
@@ -346,6 +344,13 @@ class Program
             string sql = "INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('Yan','123',0)";
             MySqlCommand comando = new MySqlCommand(sql, conn);
             comando.ExecuteNonQuery();
+        }
+        static void SqlExecute(string query)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            comando.ExecuteNonQuery();
+
         }
     }
 }
