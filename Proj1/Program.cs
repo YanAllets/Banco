@@ -159,11 +159,9 @@ class Program
         }
         static void Listar()
         {
-            foreach(Conta conta in contas)
-            {
-                System.Console.WriteLine($"Nome:{conta.Nome}   |  Senha: {conta.Senha}  | Saldo: {conta.Saldo}");
-            }
-            System.Console.WriteLine("Enter - Para Sair");
+        
+            SqlReader("select * from contas;");
+            System.Console.WriteLine("Enter - Para continuar");
             Console.ReadLine();
         }
         static bool QuitIf(string variavel)
@@ -350,13 +348,25 @@ class Program
             int i = Convert.ToInt32(resultado);
             return i;
         }
+        static void SqlReader(string query)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            MySqlDataReader reader = comando.ExecuteReader();
+            while (reader.Read())
+            {
+                string nome = Convert.ToString(reader["Nome"]);
+                string senha = Convert.ToString(reader["Senha"]);
+                decimal saldo = Convert.ToDecimal(reader["Saldo"]);
+                Console.WriteLine($"Nome:{nome}     |Senha:{senha}     |Saldo:{saldo}");
+            }
+        }
         static string SqlScalarString(string query)
         {
             string sql = query;
             MySqlCommand comando = new MySqlCommand(sql,conn);
             object resultado = comando.ExecuteScalar();
             string i = Convert.ToString(resultado);
-            System.Console.WriteLine(i);
             return i;
         }
     }
