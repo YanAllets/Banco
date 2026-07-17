@@ -20,7 +20,6 @@ class Program
         conn.Open();
         while(Rodando == true)
         {
-            AbrirContas();
             Console.Clear();
             Console.WriteLine("===BEM VINDO===");
             System.Console.WriteLine("1 - Criar Conta");
@@ -116,7 +115,7 @@ class Program
 
             contas.Add(conta);
             System.Console.WriteLine("Conta Criada com sucesso!");
-            SqlExecute($"INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('{nomeConta}','{senha}','0')");
+            SqlNonQuery($"INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('{nomeConta}','{senha}','0')");
             Thread.Sleep(2000);
         }
         static bool LogarConta()
@@ -124,7 +123,7 @@ class Program
             Thread.Sleep(200);
             Console.Clear();
             
-            if(contas.Count == 0)
+            if(SqlScalarInt("Select Count(*) from contas") == 0)
             {
                 System.Console.WriteLine("Nao existem contas disponiveis - Enter para Continuar"); 
                 Console.ReadLine();
@@ -147,9 +146,10 @@ class Program
             {
                 return false;
             }
-            while(contas[i].Senha != senha)
+            
+            while(SqlScalarString($"select senha from contas where id = {IdAtualConta};") != senha)
             {
-                System.Console.WriteLine("senha incorreta,tente Novamente");
+                System.Console.WriteLine("Senha incorreta,tente novamente");
                 senha = Console.ReadLine();
             }
             System.Console.WriteLine("Usuario Logado com sucesso!");
@@ -177,17 +177,14 @@ class Program
         static int ProcurarConta(string nome)
         {
             int i = 0;
-            while(contas[i].Nome != nome)
+            while (SqlScalarInt($"select Id from contas where Nome = '{nome}';") == 0)
             {
-                i++;
-                if(i == contas.Count)
-                {
-                    System.Console.WriteLine("Conta nao encontrada tente Novamente:");
-                    nome = Console.ReadLine();
-                    QuitIf(nome);
-                    i = 0;
-                }
+                System.Console.WriteLine("Conta nao encontrada tente Novamente:");
+                System.Console.WriteLine("Digite e para sair...");
+                nome = Console.ReadLine();
+                QuitIf(nome);
             }
+            i = SqlScalarInt($"select Id from contas where Nome = '{nome}';");
             return i;
         }
         static bool MenuConta()
@@ -321,7 +318,8 @@ class Program
                 return false;
             }
         }
-        static void SalvarContas()
+        //Funcoes antigas que salvavam tudo em JSON
+        /*static void SalvarContas()
         {
             string texto;
             texto = JsonSerializer.Serialize(contas);
@@ -336,21 +334,30 @@ class Program
                 texto = File.ReadAllText("contas.json");
                 contas = JsonSerializer.Deserialize<List<Conta>>(texto);
             }
-        }
-        
-        static void InserirContaTeste()
-        {
-            conn.Open();
-            string sql = "INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('Yan','123',0)";
-            MySqlCommand comando = new MySqlCommand(sql, conn);
-            comando.ExecuteNonQuery();
-        }
-        static void SqlExecute(string query)
+        }*/
+        static void SqlNonQuery(string query)
         {
             string sql = query;
             MySqlCommand comando = new MySqlCommand(sql,conn);
             comando.ExecuteNonQuery();
 
+        }
+        static int SqlScalarInt(string query)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            object resultado = comando.ExecuteScalar();
+            int i = Convert.ToInt32(resultado);
+            return i;
+        }
+        static string SqlScalarString(string query)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            object resultado = comando.ExecuteScalar();
+            string i = Convert.ToString(resultado);
+            System.Console.WriteLine(i);
+            return i;
         }
     }
 }
