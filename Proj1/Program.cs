@@ -222,8 +222,8 @@ class Program
         }
         static void Saldo()
         {
-            Console.Clear();
-            System.Console.WriteLine($"Saldo:{contas[IdAtualConta].Saldo}");
+            decimal Saldo = SqlScalarDecimal($"select Saldo From contas where id = '{IdAtualConta}';");
+            System.Console.WriteLine($"Saldo:{Saldo}");
             System.Console.WriteLine("Enter Para Continuar");
             Console.ReadLine();
         }
@@ -237,7 +237,7 @@ class Program
                 System.Console.WriteLine("tente novamente:");
                 resp = Console.ReadLine();
             }
-        contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo + valor;
+        SqlNonQuery($"update contas set saldo = saldo + '{valor}' where id = {IdAtualConta};");
         System.Console.WriteLine($"Foram Depositados R${valor} -  Enter para continuar");
         Console.ReadLine();
         }
@@ -245,6 +245,7 @@ class Program
         {
             System.Console.WriteLine("Digite o valor a sacar: ");
             string resp = Console.ReadLine();
+            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = {IdAtualConta};");
             decimal valor;
 
             while(Verificar(resp, out valor) == false)
@@ -253,9 +254,9 @@ class Program
                 resp = Console.ReadLine();
             }
 
-            while(valor > contas[IdAtualConta].Saldo)
+            while(valor > saldo)
             {
-                System.Console.WriteLine($"Valor maior que o saldo da conta ({contas[IdAtualConta].Saldo}) Tente novamente");
+                System.Console.WriteLine($"Valor maior que o saldo da conta ({saldo}) Tente novamente");
                 resp = Console.ReadLine();
 
                 while(Verificar(resp, out valor) == false)
@@ -264,17 +265,17 @@ class Program
                 resp = Console.ReadLine();
                 }
             }
-            contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
-            System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${contas[IdAtualConta].Saldo}");
+            SqlNonQuery($"update contas set saldo = saldo - '{valor}' where id = {IdAtualConta};");
+            System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${saldo}");
             System.Console.WriteLine("Enter para Continuar");
             Console.ReadLine();
         }
         static void Transferir()
         {
             System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
-            System.Console.WriteLine("Enter ");
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
+            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = {IdAtualConta};");
 
             Console.WriteLine("Digite o valor a trasnferir: ");
             string resp = Console.ReadLine();
@@ -285,9 +286,9 @@ class Program
                 resp = Console.ReadLine();
             }
 
-            while(valor > contas[IdAtualConta].Saldo)
+            while(valor > saldo)
             {
-                System.Console.WriteLine($"Valor maior que o saldo da conta (Saldo:{contas[IdAtualConta].Saldo}) Tente novamente");
+                System.Console.WriteLine($"Valor maior que o saldo da conta (Saldo:{saldo}) Tente novamente");
                 resp = Console.ReadLine();
 
                 while(Verificar(resp, out valor) == false)
@@ -297,11 +298,10 @@ class Program
                 }
             }
 
-            contas[IdAtualConta].Saldo = contas[IdAtualConta].Saldo - valor;
+            SqlNonQuery($"update contas set saldo = saldo - '{valor}' where id = {IdAtualConta};");
+            SqlNonQuery($"update contas set saldo = saldo + '{valor}' where id = {i};");
 
-            contas[i].Saldo = contas[i].Saldo + valor;
-
-            System.Console.WriteLine($"Foram Transferidos R${valor} -  Enter para continuar");
+            System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino}-  Enter para continuar");
             Console.ReadLine();
         }
         static bool Verificar(string resp, out decimal valor)
@@ -346,6 +346,14 @@ class Program
             MySqlCommand comando = new MySqlCommand(sql,conn);
             object resultado = comando.ExecuteScalar();
             int i = Convert.ToInt32(resultado);
+            return i;
+        }
+        static decimal SqlScalarDecimal(string query)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            object resultado = comando.ExecuteScalar();
+            decimal i = Convert.ToDecimal(resultado);
             return i;
         }
         static void SqlReader(string query)
