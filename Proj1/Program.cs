@@ -113,7 +113,6 @@ class Program
                 Nsenha = Console.ReadLine();
             }
 
-            contas.Add(conta);
             System.Console.WriteLine("Conta Criada com sucesso!");
             SqlNonQuery($"INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('{nomeConta}','{senha}','0')");
             Thread.Sleep(2000);
@@ -174,15 +173,15 @@ class Program
         }
         static int ProcurarConta(string nome)
         {
-            int i = 0;
-            while (SqlScalarInt($"select Id from contas where Nome = '{nome}';") == 0)
+            int i;
+            while (AntSqlInjectionProcurarContas($"select Id from contas where Nome = '{@nome}';","") == 0)
             {
                 System.Console.WriteLine("Conta nao encontrada tente Novamente:");
                 System.Console.WriteLine("Digite e para sair...");
                 nome = Console.ReadLine();
                 QuitIf(nome);
             }
-            i = SqlScalarInt($"select Id from contas where Nome = '{nome}';");
+            i = SqlScalarInt($"select Id from contas where Nome = '{@nome}';");
             return i;
         }
         static bool MenuConta()
@@ -301,7 +300,7 @@ class Program
             SqlNonQuery($"update contas set saldo = saldo - '{valor}' where id = {IdAtualConta};");
             SqlNonQuery($"update contas set saldo = saldo + '{valor}' where id = {i};");
 
-            System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino}-  Enter para continuar");
+            System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
             Console.ReadLine();
         }
         static bool Verificar(string resp, out decimal valor)
@@ -375,6 +374,14 @@ class Program
             MySqlCommand comando = new MySqlCommand(sql,conn);
             object resultado = comando.ExecuteScalar();
             string i = Convert.ToString(resultado);
+            return i;
+        }
+        static int AntSqlInjectionProcurarContas(string query,string par1,string column)
+        {
+            MySqlCommand comando = new MySqlCommand(query,conn);
+            comando.Parameters.AddWithValue($"@{par1}",column);
+            object resultado = comando.ExecuteScalar();
+            int i = Convert.ToInt32(resultado);
             return i;
         }
     }
