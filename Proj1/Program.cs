@@ -174,7 +174,7 @@ class Program
         static int ProcurarConta(string nome)
         {
             int i;
-            while (AntSqlInjectionProcurarContas($"select Id from contas where Nome = '{@nome}';","") == 0)
+            while (SqlScalarInt($"select Id from contas where Nome = '{@nome}';") == 0)
             {
                 System.Console.WriteLine("Conta nao encontrada tente Novamente:");
                 System.Console.WriteLine("Digite e para sair...");
@@ -374,14 +374,6 @@ class Program
             MySqlCommand comando = new MySqlCommand(sql,conn);
             object resultado = comando.ExecuteScalar();
             string i = Convert.ToString(resultado);
-            return i;
-        }
-        static int AntSqlInjectionProcurarContas(string query,string par1,string column)
-        {
-            MySqlCommand comando = new MySqlCommand(query,conn);
-            comando.Parameters.AddWithValue($"@{par1}",column);
-            object resultado = comando.ExecuteScalar();
-            int i = Convert.ToInt32(resultado);
             return i;
         }
     }
