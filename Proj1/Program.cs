@@ -90,8 +90,6 @@ class Program
             }
             Conta conta = new Conta();
 
-            conta.Nome = nomeConta;
-
             Load();
             System.Console.WriteLine(nomeConta);
             System.Console.WriteLine("Qual sera sua senha?  ");
@@ -101,7 +99,6 @@ class Program
             {
                 return;
             }
-            conta.Senha = senha;
 
             string Nsenha;
 
@@ -114,7 +111,7 @@ class Program
             }
 
             System.Console.WriteLine("Conta Criada com sucesso!");
-            SqlNonQuery($"INSERT INTO Contas (Nome,Senha,Saldo) VALUES ('{nomeConta}','{senha}','0')");
+            SqlNomeSenha("INSERT INTO Contas (Nome,Senha,Saldo) VALUES (@nome,@senha,0)",nomeConta,Nsenha);
             Thread.Sleep(2000);
         }
         static bool LogarConta()
@@ -375,6 +372,14 @@ class Program
             object resultado = comando.ExecuteScalar();
             string i = Convert.ToString(resultado);
             return i;
+        }
+        static void SqlNomeSenha(string query,string nome,string senha)
+        {
+            string sql = query;
+            MySqlCommand comando = new MySqlCommand(sql,conn);
+            comando.Parameters.AddWithValue("@nome",nome);
+            comando.Parameters.AddWithValue("@senha",senha);
+            comando.ExecuteNonQuery(); 
         }
     }
 }
