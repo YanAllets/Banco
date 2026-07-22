@@ -124,7 +124,7 @@ class Program
             Thread.Sleep(200);
             Console.Clear();
             
-            if(SqlScalarInt("Select Count(*) from contas",parametros) == 0)
+            if(SqlScalar<int>("Select Count(*) from contas",parametros) == 0)
             {
                 System.Console.WriteLine("Nao existem contas disponiveis - Enter para Continuar"); 
                 Console.ReadLine();
@@ -149,7 +149,7 @@ class Program
             {
                 return false;
             }
-            while(SqlScalarString("select senha from contas where id = @Id;",parametros) != senha)
+            while(SqlScalar<string>("select senha from contas where id = @Id;",parametros) != senha)
             {
                 System.Console.WriteLine("Senha incorreta,tente novamente");
                 senha = Console.ReadLine();
@@ -180,7 +180,7 @@ class Program
 
             int i;
             parametros.Add("@nome",nome);
-            while (SqlScalarInt("select Id from contas where Nome = @nome;",parametros) == 0)
+            while (SqlScalar<int>("select Id from contas where Nome = @nome;",parametros) == 0)
             {
                 System.Console.WriteLine("Conta nao encontrada tente Novamente:");
                 System.Console.WriteLine("Digite e para sair...");
@@ -188,7 +188,7 @@ class Program
                 QuitIf(nome);
                 parametros["@nome"] = nome;
             }
-            i = SqlScalarInt("select Id from contas where Nome = @nome;",parametros);
+            i = SqlScalar<int>("select Id from contas where Nome = @nome;",parametros);
             return i;
         }
         static bool MenuConta()
@@ -230,7 +230,7 @@ class Program
         {
             Dictionary<string,object> parametros = new Dictionary<string, object>();
             parametros.Add("@Id",IdAtualConta);
-            decimal Saldo = SqlScalarDecimal("select Saldo From contas where id = @Id;",parametros);
+            decimal Saldo = SqlScalar<Decimal>("select Saldo From contas where id = @Id;",parametros);
             System.Console.WriteLine($"Saldo:{Saldo}");
             System.Console.WriteLine("Enter Para Continuar");
             Console.ReadLine();
@@ -259,7 +259,7 @@ class Program
 
             System.Console.WriteLine("Digite o valor a sacar: ");
             string resp = Console.ReadLine();
-            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = @Id;",parametros);
+            decimal saldo = SqlScalar<decimal>($"select saldo from contas where id = @Id;",parametros);
             decimal valor;
 
             while(Verificar(resp, out valor) == false)
@@ -281,6 +281,7 @@ class Program
             }
             parametros.Add("@valor",valor);
             SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
+            saldo = SqlScalar<Decimal>("select Saldo from contas where id = @Id",parametros);
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${saldo}");
             System.Console.WriteLine("Enter para Continuar");
             Console.ReadLine();
@@ -293,7 +294,7 @@ class Program
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
             parametros.Add("@Id",IdAtualConta);
-            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = @Id;",parametros);
+            decimal saldo = SqlScalar<decimal>($"select saldo from contas where id = @Id;",parametros);
 
             Console.WriteLine("Digite o valor a trasnferir: ");
             string resp = Console.ReadLine();
@@ -363,7 +364,7 @@ class Program
             comando.ExecuteNonQuery();
 
         }
-        static int SqlScalarInt(string query,Dictionary<string,object> parametros)
+        static T SqlScalar<T>(string query,Dictionary<string,object> parametros)
         {
             string sql = query;
             MySqlCommand comando = new MySqlCommand(sql,conn);
@@ -372,19 +373,7 @@ class Program
                 comando.Parameters.AddWithValue(chave, valor);
             }
             object resultado = comando.ExecuteScalar();
-            int i = Convert.ToInt32(resultado);
-            return i;
-        }
-        static decimal SqlScalarDecimal(string query,Dictionary<string,object> parametros)
-        {
-            string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
-            foreach(var (chave, valor) in parametros)
-            {
-                comando.Parameters.AddWithValue(chave, valor);
-            }
-            object resultado = comando.ExecuteScalar();
-            decimal i = Convert.ToDecimal(resultado);
+            T i = (T)Convert.ChangeType(resultado, typeof(T));
             return i;
         }
         static void SqlReader(string query)
@@ -400,18 +389,6 @@ class Program
                 Console.WriteLine($"Nome:{nome}     |Senha:{senha}     |Saldo:{saldo}");
             }
             reader.Close();
-        }
-        static string SqlScalarString(string query,Dictionary<string,object> parametros)
-        {
-            string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
-            foreach(var (chave, valor) in parametros)
-            {
-                comando.Parameters.AddWithValue(chave, valor);
-            }
-            object resultado = comando.ExecuteScalar();
-            string i = Convert.ToString(resultado);
-            return i;
         }
     }
 }
