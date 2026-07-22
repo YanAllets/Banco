@@ -13,6 +13,7 @@ class Program
     static int IdAtualConta;
     static string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
     static MySqlConnection conn = new MySqlConnection(conexao);
+    
 
     static void Main()
     
@@ -80,6 +81,7 @@ class Program
         }
         static void CriarConta()
         {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
             Console.Clear();
             System.Console.WriteLine("Nomeie sua Conta");
             System.Console.WriteLine("e - Para Sair");
@@ -111,15 +113,18 @@ class Program
             }
 
             System.Console.WriteLine("Conta Criada com sucesso!");
-            SqlNomeSenha("INSERT INTO Contas (Nome,Senha,Saldo) VALUES (@nome,@senha,0)",nomeConta,Nsenha);
+            parametros.Add("@nome",nomeConta);
+            parametros.Add("@senha",Nsenha);
+            SqlNonQuery("INSERT INTO Contas (Nome,Senha,Saldo) VALUES (@nome,@senha,0)",parametros);
             Thread.Sleep(2000);
         }
         static bool LogarConta()
         {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
             Thread.Sleep(200);
             Console.Clear();
             
-            if(SqlScalarInt("Select Count(*) from contas") == 0)
+            if(SqlScalarInt("Select Count(*) from contas",parametros) == 0)
             {
                 System.Console.WriteLine("Nao existem contas disponiveis - Enter para Continuar"); 
                 Console.ReadLine();
@@ -142,7 +147,6 @@ class Program
             {
                 return false;
             }
-            
             while(SqlScalarString($"select senha from contas where id = {IdAtualConta};") != senha)
             {
                 System.Console.WriteLine("Senha incorreta,tente novamente");
@@ -170,15 +174,19 @@ class Program
         }
         static int ProcurarConta(string nome)
         {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
+
             int i;
-            while (SqlScalarInt($"select Id from contas where Nome = '{@nome}';") == 0)
+            parametros.Add("@nome",nome);
+            while (SqlScalarInt("select Id from contas where Nome = @nome;",parametros) == 0)
             {
                 System.Console.WriteLine("Conta nao encontrada tente Novamente:");
                 System.Console.WriteLine("Digite e para sair...");
                 nome = Console.ReadLine();
                 QuitIf(nome);
+                parametros["@nome"] = nome;
             }
-            i = SqlScalarInt($"select Id from contas where Nome = '{@nome}';");
+            i = SqlScalarInt($"select Id from contas where Nome = @nome;",parametros);
             return i;
         }
         static bool MenuConta()
@@ -224,7 +232,8 @@ class Program
             Console.ReadLine();
         }
         static void Deposito()
-        {      
+        {
+        Dictionary<string,object> parametros = new Dictionary<string, object>();      
         System.Console.WriteLine("Digite o valor a Depositar: ");
         string resp = Console.ReadLine();
         decimal valor;
@@ -233,12 +242,14 @@ class Program
                 System.Console.WriteLine("tente novamente:");
                 resp = Console.ReadLine();
             }
-        SqlNonQuery($"update contas set saldo = saldo + '{valor}' where id = {IdAtualConta};");
+        parametros.Add("@valor",valor);
+        SqlNonQuery($"update contas set saldo = saldo + @valor where id = {IdAtualConta};",parametros);
         System.Console.WriteLine($"Foram Depositados R${valor} -  Enter para continuar");
         Console.ReadLine();
         }
         static void Sacar()
         {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
             System.Console.WriteLine("Digite o valor a sacar: ");
             string resp = Console.ReadLine();
             decimal saldo = SqlScalarDecimal($"select saldo from contas where id = {IdAtualConta};");
@@ -261,13 +272,15 @@ class Program
                 resp = Console.ReadLine();
                 }
             }
-            SqlNonQuery($"update contas set saldo = saldo - '{valor}' where id = {IdAtualConta};");
+            parametros.Add("@valor",valor);
+            SqlNonQuery($"update contas set saldo = saldo - @valor where id = {IdAtualConta};",parametros);
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${saldo}");
             System.Console.WriteLine("Enter para Continuar");
             Console.ReadLine();
         }
         static void Transferir()
         {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
             System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
@@ -293,9 +306,9 @@ class Program
                 resp = Console.ReadLine();
                 }
             }
-
-            SqlNonQuery($"update contas set saldo = saldo - '{valor}' where id = {IdAtualConta};");
-            SqlNonQuery($"update contas set saldo = saldo + '{valor}' where id = {i};");
+            parametros.Add("@valor",valor);
+            SqlNonQuery($"update contas set saldo = saldo - @valor where id = {IdAtualConta};",parametros);
+            SqlNonQuery($"update contas set saldo = saldo + @valor where id = {i};",parametros);
 
             System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
             Console.ReadLine();
@@ -329,17 +342,25 @@ class Program
                 contas = JsonSerializer.Deserialize<List<Conta>>(texto);
             }
         }*/
-        static void SqlNonQuery(string query)
+        static void SqlNonQuery(string query,Dictionary<string,object> parametros)
         {
             string sql = query;
             MySqlCommand comando = new MySqlCommand(sql,conn);
+            foreach(var (chave, valor) in parametros)
+            {
+                comando.Parameters.AddWithValue(chave, valor);
+            }
             comando.ExecuteNonQuery();
 
         }
-        static int SqlScalarInt(string query)
+        static int SqlScalarInt(string query,Dictionary<string,object> parametros)
         {
             string sql = query;
             MySqlCommand comando = new MySqlCommand(sql,conn);
+            foreach(var (chave, valor) in parametros)
+            {
+                comando.Parameters.AddWithValue(chave, valor);
+            }
             object resultado = comando.ExecuteScalar();
             int i = Convert.ToInt32(resultado);
             return i;
@@ -372,14 +393,6 @@ class Program
             object resultado = comando.ExecuteScalar();
             string i = Convert.ToString(resultado);
             return i;
-        }
-        static void SqlNomeSenha(string query,string nome,string senha)
-        {
-            string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
-            comando.Parameters.AddWithValue("@nome",nome);
-            comando.Parameters.AddWithValue("@senha",senha);
-            comando.ExecuteNonQuery(); 
         }
     }
 }
