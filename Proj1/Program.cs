@@ -139,6 +139,8 @@ class Program
            int i = ProcurarConta(nomeConta);
 
             IdAtualConta = i;
+            parametros.Add("@Id",IdAtualConta);
+
             System.Console.WriteLine("Digite sua senha:");
             System.Console.WriteLine("e - Para Sair");
             string senha = Console.ReadLine();
@@ -147,7 +149,7 @@ class Program
             {
                 return false;
             }
-            while(SqlScalarString($"select senha from contas where id = {IdAtualConta};",parametros) != senha)
+            while(SqlScalarString("select senha from contas where id = @Id;",parametros) != senha)
             {
                 System.Console.WriteLine("Senha incorreta,tente novamente");
                 senha = Console.ReadLine();
@@ -186,7 +188,7 @@ class Program
                 QuitIf(nome);
                 parametros["@nome"] = nome;
             }
-            i = SqlScalarInt($"select Id from contas where Nome = @nome;",parametros);
+            i = SqlScalarInt("select Id from contas where Nome = @nome;",parametros);
             return i;
         }
         static bool MenuConta()
@@ -227,7 +229,8 @@ class Program
         static void Saldo()
         {
             Dictionary<string,object> parametros = new Dictionary<string, object>();
-            decimal Saldo = SqlScalarDecimal($"select Saldo From contas where id = {IdAtualConta};",parametros);
+            parametros.Add("@Id",IdAtualConta);
+            decimal Saldo = SqlScalarDecimal("select Saldo From contas where id = @Id;",parametros);
             System.Console.WriteLine($"Saldo:{Saldo}");
             System.Console.WriteLine("Enter Para Continuar");
             Console.ReadLine();
@@ -244,16 +247,19 @@ class Program
                 resp = Console.ReadLine();
             }
         parametros.Add("@valor",valor);
-        SqlNonQuery($"update contas set saldo = saldo + @valor where id = {IdAtualConta};",parametros);
+        parametros.Add("@Id",IdAtualConta);
+        SqlNonQuery("update contas set saldo = saldo + @valor where id = @Id;",parametros);
         System.Console.WriteLine($"Foram Depositados R${valor} -  Enter para continuar");
         Console.ReadLine();
         }
         static void Sacar()
         {
             Dictionary<string,object> parametros = new Dictionary<string, object>();
+            parametros.Add("@Id",IdAtualConta);
+
             System.Console.WriteLine("Digite o valor a sacar: ");
             string resp = Console.ReadLine();
-            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = {IdAtualConta};",parametros);
+            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = @Id;",parametros);
             decimal valor;
 
             while(Verificar(resp, out valor) == false)
@@ -274,7 +280,7 @@ class Program
                 }
             }
             parametros.Add("@valor",valor);
-            SqlNonQuery($"update contas set saldo = saldo - @valor where id = {IdAtualConta};",parametros);
+            SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
             System.Console.WriteLine($"R${valor} Sacado com sucesso, saldo atual:R${saldo}");
             System.Console.WriteLine("Enter para Continuar");
             Console.ReadLine();
@@ -282,10 +288,12 @@ class Program
         static void Transferir()
         {
             Dictionary<string,object> parametros = new Dictionary<string, object>();
+
             System.Console.WriteLine("Digite o nome do usuario de DESTINO:");
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
-            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = {IdAtualConta};",parametros);
+            parametros.Add("@Id",IdAtualConta);
+            decimal saldo = SqlScalarDecimal($"select saldo from contas where id = @Id;",parametros);
 
             Console.WriteLine("Digite o valor a trasnferir: ");
             string resp = Console.ReadLine();
@@ -308,10 +316,11 @@ class Program
                 }
             }
             parametros.Add("@valor",valor);
-            SqlNonQuery($"update contas set saldo = saldo - @valor where id = {IdAtualConta};",parametros);
-            SqlNonQuery($"update contas set saldo = saldo + @valor where id = {i};",parametros);
+            parametros.Add("@Destino",i);
+            SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
+            SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros);
 
-            System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
+            System.Console.WriteLine($"Foram Transferidos R${valor} Para {resp} -  Enter para continuar");
             Console.ReadLine();
         }
         static bool Verificar(string resp, out decimal valor)
@@ -390,6 +399,7 @@ class Program
                 decimal saldo = Convert.ToDecimal(reader["Saldo"]);
                 Console.WriteLine($"Nome:{nome}     |Senha:{senha}     |Saldo:{saldo}");
             }
+            reader.Close();
         }
         static string SqlScalarString(string query,Dictionary<string,object> parametros)
         {
