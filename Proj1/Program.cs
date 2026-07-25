@@ -116,8 +116,9 @@ class Program
             }
 
             System.Console.WriteLine("Conta Criada com sucesso!");
+            string senhaHash = GerarHash(Nsenha);
             parametros.Add("@nome",nomeConta);
-            parametros.Add("@senha",Nsenha);
+            parametros.Add("@senha",senhaHash);
             SqlNonQuery("INSERT INTO Contas (Nome,Senha,Saldo) VALUES (@nome,@senha,0)",parametros);
             Thread.Sleep(2000);
         }
@@ -134,7 +135,6 @@ class Program
                 return false;
             }
 
-
            System.Console.WriteLine("Digite seu Usuario:  ");
            System.Console.WriteLine("e - Para Sair");
            string nomeConta = Console.ReadLine();
@@ -147,12 +147,13 @@ class Program
             System.Console.WriteLine("Digite sua senha:");
             System.Console.WriteLine("e - Para Sair");
             string senha = Console.ReadLine();
+            string senhaHash = GerarHash(senha);
 
             if (QuitIf(senha))
             {
                 return false;
             }
-            while(SqlScalar<string>("select senha from contas where id = @Id;",parametros) != senha)
+            while(SqlScalar<string>("select senha from contas where id = @Id;",parametros) != senhaHash)
             {
                 System.Console.WriteLine("Senha incorreta,tente novamente");
                 senha = Console.ReadLine();
@@ -324,7 +325,7 @@ class Program
             SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
             SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros);
 
-            System.Console.WriteLine($"Foram Transferidos R${valor} Para {resp} -  Enter para continuar");
+            System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
             Console.ReadLine();
         }
         static bool Verificar(string resp, out decimal valor)
@@ -339,23 +340,6 @@ class Program
                 return false;
             }
         }
-        //Funcoes antigas que salvavam tudo em JSON
-        /*static void SalvarContas()
-        {
-            string texto;
-            texto = JsonSerializer.Serialize(contas);
-            File.WriteAllText("contas.json",texto);
-        }
-        static void AbrirContas()
-        {
-            bool existe = File.Exists("contas.json");
-            string texto;
-            if (existe == true)
-            {
-                texto = File.ReadAllText("contas.json");
-                contas = JsonSerializer.Deserialize<List<Conta>>(texto);
-            }
-        }*/
         static void SqlNonQuery(string query,Dictionary<string,object> parametros)
         {
             string sql = query;
@@ -393,13 +377,13 @@ class Program
             }
             reader.Close();
         }
-        static string GerarHash()
+        static string GerarHash(string senha)
         {
-            string senha = "123";
             byte[] bytes = Encoding.UTF8.GetBytes(senha);
             SHA256 sha = SHA256.Create();
             byte [] hash = sha.ComputeHash(bytes);
             string HashString = Convert.ToHexString(hash);
+            System.Console.WriteLine(HashString);
             return HashString;
         }
     }
