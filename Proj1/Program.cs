@@ -322,9 +322,17 @@ class Program
             }
             parametros.Add("@valor",valor);
             parametros.Add("@Destino",i);
-            SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
-            SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros);
-
+            try
+            {
+                SqlNonQuery("start transaction;",parametros);
+                SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
+                SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros);
+                SqlNonQuery("Commit;",parametros);
+            }
+            catch
+            {
+                SqlRollback();
+            }
             System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
             Console.ReadLine();
         }
@@ -376,6 +384,11 @@ class Program
                 Console.WriteLine($"Nome:{nome}     |Senha:{senha}     |Saldo:{saldo}");
             }
             reader.Close();
+        }
+        static void SqlRollback()
+        {
+            Dictionary<string,object> parametros = new Dictionary<string, object>();
+            SqlNonQuery("Rollback;",parametros);
         }
         static string GerarHash(string senha)
         {
