@@ -10,9 +10,7 @@ using System.Security.Cryptography;
 
 class Program
 {
-    
     static bool Rodando = true;
-    static List<Conta> contas = new List<Conta>();
     static int IdAtualConta;
     static string conexao = "Server=localhost;Database=banco;User ID=root;Password=Hypnotize-Overrule-Luckiness7;";
     static MySqlConnection conn = new MySqlConnection(conexao);
@@ -93,7 +91,6 @@ class Program
             {
                 return;
             }
-            Conta conta = new Conta();
 
             Load();
             System.Console.WriteLine(nomeConta);
@@ -157,6 +154,7 @@ class Program
             {
                 System.Console.WriteLine("Senha incorreta,tente novamente");
                 senha = Console.ReadLine();
+                senhaHash = GerarHash(senha);
             }
             System.Console.WriteLine("Usuario Logado com sucesso!");
             Thread.Sleep(2000);
@@ -263,7 +261,7 @@ class Program
 
             System.Console.WriteLine("Digite o valor a sacar: ");
             string resp = Console.ReadLine();
-            decimal saldo = SqlScalar<decimal>($"select saldo from contas where id = @Id;",parametros);
+            decimal saldo = SqlScalar<decimal>("select saldo from contas where id = @Id;",parametros);
             decimal valor;
 
             while(Verificar(resp, out valor) == false)
@@ -298,7 +296,6 @@ class Program
             string ContaDestino = Console.ReadLine();
             int i = ProcurarConta(ContaDestino);
             parametros.Add("@Id",IdAtualConta);
-            decimal saldo = SqlScalar<decimal>($"select saldo from contas where id = @Id;",parametros);
 
             Console.WriteLine("Digite o valor a trasnferir: ");
             string resp = Console.ReadLine();
@@ -308,6 +305,8 @@ class Program
                 System.Console.WriteLine("tente novamente:");
                 resp = Console.ReadLine();
             }
+            using MySqlTransaction transacao = conn.BeginTransaction();
+            decimal saldo = SqlScalar<decimal>("select saldo from contas where id = @Id;",parametros,transacao);
 
             while(valor > saldo)
             {
@@ -320,18 +319,22 @@ class Program
                 resp = Console.ReadLine();
                 }
             }
+
             parametros.Add("@valor",valor);
             parametros.Add("@Destino",i);
             try
             {
-                SqlNonQuery("start transaction;",parametros);
-                SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros);
-                SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros);
-                SqlNonQuery("Commit;",parametros);
+                SqlNonQuery("update contas set saldo = saldo - @valor where id = @Id;",parametros,transacao);
+                SqlNonQuery($"update contas set saldo = saldo + @valor where id = @Destino;",parametros,transacao);
+                transacao.Commit();
+ 
             }
-            catch
+            catch(Exception ex)
             {
-                SqlRollback();
+                Console.Clear();
+                transacao.Rollback();
+                System.Console.WriteLine(ex.Message);
+                return;
             }
             System.Console.WriteLine($"Foram Transferidos R${valor} Para {ContaDestino} -  Enter para continuar");
             Console.ReadLine();
@@ -348,21 +351,32 @@ class Program
                 return false;
             }
         }
-        static void SqlNonQuery(string query,Dictionary<string,object> parametros)
+        static void SqlNonQuery(string query,Dictionary<string,object> parametros,MySqlTransaction? trans = null)
         {
             string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
+            using MySqlCommand comando = new MySqlCommand(sql,conn);
+
+            if(trans != null)
+            {
+                comando.Transaction = trans;
+            }
+
             foreach(var (chave, valor) in parametros)
             {
                 comando.Parameters.AddWithValue(chave, valor);
             }
             comando.ExecuteNonQuery();
-
         }
-        static T SqlScalar<T>(string query,Dictionary<string,object> parametros)
+        static T SqlScalar<T>(string query,Dictionary<string,object> parametros,MySqlTransaction? trans = null)
         {
             string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
+            using MySqlCommand comando = new MySqlCommand(sql,conn);
+
+            if(trans != null)
+            {
+                comando.Transaction = trans;
+            }
+
             foreach(var (chave, valor) in parametros)
             {
                 comando.Parameters.AddWithValue(chave, valor);
@@ -374,8 +388,8 @@ class Program
         static void SqlReader(string query)
         {
             string sql = query;
-            MySqlCommand comando = new MySqlCommand(sql,conn);
-            MySqlDataReader reader = comando.ExecuteReader();
+            using MySqlCommand comando = new MySqlCommand(sql,conn);
+            using MySqlDataReader reader = comando.ExecuteReader();
             while (reader.Read())
             {
                 string nome = Convert.ToString(reader["Nome"]);
@@ -385,18 +399,12 @@ class Program
             }
             reader.Close();
         }
-        static void SqlRollback()
-        {
-            Dictionary<string,object> parametros = new Dictionary<string, object>();
-            SqlNonQuery("Rollback;",parametros);
-        }
         static string GerarHash(string senha)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(senha);
             SHA256 sha = SHA256.Create();
             byte [] hash = sha.ComputeHash(bytes);
             string HashString = Convert.ToHexString(hash);
-            System.Console.WriteLine(HashString);
             return HashString;
         }
     }
